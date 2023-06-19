@@ -1,0 +1,166 @@
+{% extends "base.html" %}
+{% block content %}
+<form class="weui-cells weui-cells_form" method="post" action="use">
+  <div class="weui-cell">
+    <div class="weui-cell__hd"><label class="weui-label">活动</label></div>
+    <div class="weui-cell__bd">{{activity}}</div>
+  </div>
+  <div class="weui-cell">
+    <div class="weui-cell__hd"><label class="weui-label">商品</label></div>
+    <div style="line-height: 32px">
+    {% for s in sku %}
+      <input type="radio" value="{{s.id}}" name="sku" tips="请选择商品" onclick="cc('{{s.param}}', '{{s.id}}')" {% if s.enable == False %}disabled{% endif %}/>{{s.name}}</br>
+    {% endfor %}</div>
+  </div>
+  <div class="weui-cell param account" style="display:none;">
+    <div class="weui-cell__hd"><label class="weui-label">账号</label></div>
+    <div class="weui-cell__bd">
+      <input class="weui-input tip" emptyTips="请输入账号" placeholder="请输入账号">
+    </div>
+  </div>
+<div class="weui-cell param QQ" style="display:none;">
+    <div class="weui-cell__hd"><label class="weui-label">账号</label></div>
+    <div class="weui-cell__bd">
+      <input class="weui-input tip" emptyTips="请输入QQ账号" placeholder="请输入QQ账号">
+    </div>
+  </div>
+  <div class="weui-cell param phone" style="display:none;">
+    <div class="weui-cell__hd"><label class="weui-label">手机号</label></div>
+    <div class="weui-cell__bd">
+      <input class="weui-input tip" type="tel" pattern="[0-9]{11}" emptyTips="请输入手机号" notMatchTips="请输入正确的手机号" placeholder="请输入手机号" maxlength=11>
+    </div>
+  </div>
+  <div class="weui-cell param msgCode" style="display:none;">
+    <div class="weui-cell__hd"><label class="weui-label">验证码</label></div>
+    <div class="weui-cell__bd">
+      <input class="weui-input" type="number" pattern="[0-9]{6}" emptyTips="请输入手机验证吗" notMatchTips="请输入正确的手机验证码" placeholder="请输入手机验证码" maxlength=6>
+      <a href="" ></a>
+    </div>
+  </div>
+  {{remark}}
+  <div class=" param remark" style="display:none">
+     <div class="weui-cell__hd" style="    margin-bottom: 15px;"><label class="">说明:</label></div>
+       {% for s in sku %}
+
+           {% if s.enable != False %}
+                 <div class="weui-cell__bd text text_con{{ s.id }}" style="display: none;">{{ s.remark }}</div>
+
+           {% endif %}
+       {% endfor %}
+     <div class="weui-cell__bd text_show"></div>
+
+  </div>
+
+
+  <div class="weui-cell button sub1">
+    <a href="javascript:sub();" class="weui-btn weui-btn_primary">兑换</a>
+  </div>
+  <div class="weui-cell button sub2" style="display:none">
+    <a href="javascript:verifyCodeCheck();" class="weui-btn weui-btn_primary">发送验证码</a>
+  </div>
+  <input type="hidden" name="name" value="{{name}}"/>
+    <input type="hidden" name="jdsign"/>
+</form>
+    {#弹出框#}
+    <div class="kuang">
+        <div class="weui-cell__bd text_show">
+            <p class="kuang_title">说明</p>
+              {% for s in sku %}
+                   {% if s.enable != False %}
+                        {{ s.remark }}
+                   {% endif %}
+               {% endfor %}
+         </div>
+        <div class="ok">确认已阅读</div>
+    </div>
+    <div class="fix"></div>
+{#弹出框#}
+<script type="text/javascript">
+var p=$('input[type="radio"]').not(':disabled');
+function cc(o, r){
+  $('.param').hide()
+  $('.sub2').hide(); $('.sub1').show();
+  $('.param input').removeAttr('required').removeAttr('name')
+  $.each(o.split(','), (x,o)=>{
+      console.log(o)
+    if(o == 'msgCode'){
+      $('.sub1').hide(); $('.sub2').show();
+    }else if(o==''){
+
+    }else{
+      $('.'+o).show()
+      $('.'+o+' input').attr('required', 1).attr('name', 'account')
+    }
+  })
+  if(r){
+      //隐藏的说明text内容存放的id的class名;
+      let names='.text_con'+r
+      console.log(names)
+      //判断商品说明是否有内容
+      if($(names)[0].outerText){
+          //显示说明内容
+          $('.remark').show()
+          //将说明内容放到显示的div中（可用来解决富文本的text 内容无法进行渲染的问题）
+          $('.remark').find(".text_show")[0].innerHTML=$(names)[0].outerText
+          $('.kuang').find(".text_show")[0].innerHTML=$(names)[0].outerText
+      }
+  }
+
+}
+function verifyCodeCheck(){
+  weui.form.validate('form', e=>{
+    if(!e){
+        //添加了 面额id的参数传递用来后期判断该商品的要走的上游通道id
+      var param = {account: $('[name=account]').val(),sku: $('[name=sku]',).val()}
+      if($('[name=msgCode]').val())
+        param['msgCode'] = $('[name=msgCode]').val()
+         //如果有jdsign内容则将内容上传 没有的话就不要上传 如果上传了 会影响到其他的
+          if($('[name=jdsign]').val())
+            param['jdsign'] = $('[name=jdsign]').val()
+      $.post('msgCode', param, o=>{
+        if(o.code == 0){
+             if(o.jdsign){
+                //如果有jdsign 则将数值放到form表单中方便提交验证码的时候一起将数据进行传递过期
+                $('[name=jdsign]').val(o.jdsign)
+            }
+          if($('[name=msgCode]').val()){ // 验证码校验完
+            sub()
+          }else{ // 验证码发送完
+            o = 'msgCode'
+            $('.'+o).show()
+            $('.'+o+' input').attr('required', 1).attr('name', 'msgCode')
+            $('.sub2 a').html('兑换')
+          }
+        }else{
+          weui.topTips(o.msg);
+        }
+      })
+    }
+  })
+}
+$(function(){
+  if(p.length) p[0].click()
+  else {
+    msg = '没有库存，请稍后再试'
+    weui.topTips(msg);
+    $('.button').html('<h4 style="margin:auto">'+msg);
+  }
+  console.log($(".remark").find(".text"))
+  console.log($(".remark").find(".text").eq(0))
+  console.log($(".remark").find(".text").eq(0)[0].outerText)
+     //如果有多个商品进行兑换的时候
+    if($(".remark").find(".text").length>1){
+       $('.kuang').hide();
+       $('.fix').hide();
+    }
+$('.kuang').find(".text_show")[0].innerHTML=$(".remark").find(".text").eq(0)[0].outerText
+//确认阅读的点击事件
+ $('.ok').click(function(){
+     //关闭弹出框
+     $('.kuang').hide();
+     //关闭灰色图层
+     $('.fix').hide();
+ })
+})
+</script>
+{% endblock %}

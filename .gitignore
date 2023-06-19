@@ -1,0 +1,16 @@
+__pycache__/
+/core.*
+/db.sqlite3
+/env.py
+/env
+/venv
+/wsgi.log
+/wsgi.ff
+/static
+*swp
+*swo
+*pyc
+.nfs*
+.vscode/
+.idea/
+/test

@@ -1,0 +1,190 @@
+{% load i18n %}
+  <link rel="stylesheet" href="/django32/app/data_index.css"/>
+  <link rel="stylesheet" href="/django32/app/font_2431045_hbwl3x53oep.css"/>
+
+
+{% with choices.0 as i %}
+    {{ title }}:
+    <div class="{{ i.field_path }}_wrap">
+        <div class="wrap-l">
+            <div class="wrap-l-starTime">
+                <input name="{{ i.field_path }}_startTime" type="text" placeholder="开始日期">
+            </div>
+        </div>
+        <span>至</span>
+        <div class="wrap-r">
+            <div class="wrap-l-endTime">
+                <input name="{{ i.field_path }}_endTime" type="text" placeholder="结束日期">
+            </div>
+        </div>
+    </div>
+
+
+<script type="text/javascript">window.jQuery || document.write('<script type ="text/javascript" src ="/django32/app/jquery.min.js">\x3C/script>');</script>
+<script src="/django32/app/moment.js"></script>
+<script src="/django32/app/jquery-datePicker.min.js"></script>
+<script type="text/javascript">
+//判断原有的url路径筛选 条件
+  var r = window.location.search.substring(1);
+ if(r) {//路径中有对数据的筛选
+     console.log(window.location.href.indexOf('{{ i.field_generic }}') >= 0);
+     if (window.location.href.indexOf('{{ i.field_generic }}') >= 0) {
+         //路径中有对活动数据的筛选
+         var vars = r.split("&");//将数据根据符号分割为数组
+         var gte = '{{ i.field_generic }}' + 'gte';
+         var lt = '{{ i.field_generic }}' + 'lt';
+         for (var i = 0; i < vars.length; i++) {//将分割后的数组进行循环便利
+             var pair = vars[i].split("=");//根据 = 进行再次分割
+             if (pair[0] == gte) {//判断该数组是否为活动筛选条件所在的数组
+                 pair[1] = pair[1].replace(/%20/g, " ");
+                 $('input[name="{{ i.field_path }}_startTime"]').val(pair[1]);
+             } else if (pair[0] == lt) {
+                 pair[1] = pair[1].replace(/%20/g, " ");
+                 $('input[name="{{ i.field_path }}_endTime"]').val(pair[1]);
+             }
+         }
+     }
+ }
+    //获取当前需要筛选的字段
+
+    var fastTime = {
+        true: {
+            4: { // 双日历天、小时的快速选择格式
+                '最近7天': { startTime: moment().subtract(7, 'day').format('YYYY-MM-DD HH:mm:ss'), endTime: moment().format('YYYY-MM-DD HH:mm:ss') },
+                '最近一个月': { startTime: moment().subtract(1, 'month').format('YYYY-MM-DD HH:mm:ss'), endTime: moment().format('YYYY-MM-DD HH:mm:ss') },
+                '最近三个月': { startTime: moment().subtract(3, 'month').format('YYYY-MM-DD HH:mm:ss'), endTime: moment().format('YYYY-MM-DD HH:mm:ss') },
+                 "最近六个月": { startTime: moment().startOf('month').subtract(6, 'month').format('YYYY-MM-DD HH:mm:ss'), endTime: moment().endOf('month').format('YYYY-MM-DD HH:mm:ss')},
+                "近一年": { startTime: moment().subtract(1, 'year').startOf('year').format('YYYY-MM-DD HH:mm:ss'), endTime: moment().endOf('year').format('YYYY-MM-DD HH:mm:ss')},
+                "今年至今": { startTime: moment().startOf('year').format('YYYY-MM-DD HH:mm:ss'), endTime: moment().endOf('quarter').format('YYYY-MM-DD HH:mm:ss')},
+
+            },
+
+        },
+    }
+
+    $('.{{ i.field_path }}_wrap').on('click', function () {
+        var _this = this;
+        var reportTimeType = 4;
+        var double = true;
+        if(!$(this).next('[name="{{ i.field_path }}"]').length) {
+            $(this).after("<div class='{{ i.field_path }}-x  datePicker-x' name='{{ i.field_path }}' style='webkit-user-select: none;'></div>");
+                datePicker = $('.{{ i.field_path }}-x').datePicker({
+                    reportTimeType: reportTimeType, // 4代表小时、5代表天、6代表周、7代表月、8代表季、9代表年
+                    startDom: $(_this).find('input[name="{{ i.field_path }}_startTime"]'),  // 开始时间要赋值的DOM元素
+                    endDom: $(_this).find('input[name="{{ i.field_path }}_endTime"]'),  // 结束时间要赋值的DOM元素
+                    format: 'YYYY-MM-DD HH:mm:ss',
+                    fastTime: fastTime[double][reportTimeType], // 快速选择的时间
+                    isShowToday:true,
+                    isFast: true,   // 是否显示快速选择的选项
+                    isDouble: double,   // 是否双选择的日历
+                    showButtonPanel: true,
+                    disabledDate: true,    // 是否禁用以后的时间
+                    yes: function (startTime, endTime) {    // 成功赋值前的回调可改变赋值的时间格式
+
+                    }
+                });
+        }else {
+            if($(this).next('[name="{{ i.field_path }}"]').hasClass('hide')) {
+                $(this).next('[name="{{ i.field_path }}"]').removeClass('hide');
+
+                datePicker.render();
+            }else {
+                //没有点击确认 关闭的时间选择框(没有确认  不会有数值变换)
+                $(this).next('[name="{{ i.field_path }}"]').addClass('hide');
+
+            }
+        }
+
+        //点击确定按钮 的点击事件必须存放在输入框的点击事件内  应为只有点击过了时间输入框之后才会有 确认按钮的显示才能够执行点击事件
+        $('.{{ i.field_path }}-x').find(".datePicker-bottom-btn-confirm").click(function(){
+            var start=$('input[name="{{ i.field_path }}_startTime"]').val();
+            var end=$('input[name="{{ i.field_path }}_endTime"]').val();
+            condition(start,end,'{{ i.field_generic }}');
+        })
+        //点击清空按钮 的点击事件必须存放在输入框的点击事件内  应为只有点击过了时间输入框之后才会有 确认按钮的显示才能够执行点击事件
+        $('.{{ i.field_path }}-x').find(".datePicker-bottom-btn-cancel").click(function(){
+           var start='';
+            var end='';
+            condition(start,end,'{{ i.field_generic }}');
+        })
+
+         //点击确定按钮 的点击事件必须存放在输入框的点击事件内  应为只有点击过了时间输入框之后才会有 确认按钮的显示才能够执行点击事件
+        $('.{{ i.field_path }}-x').find("li").click(function(){
+           var start=$('input[name="{{ i.field_path }}_startTime"]').val();
+            var end=$('input[name="{{ i.field_path }}_endTime"]').val();
+            condition(start,end,'{{ i.field_generic }}');
+        })
+    });
+
+
+   {#路径转跳 函数#}
+    function condition(start,end,who){
+        console.log(9999999);
+            console.log(start);
+            console.log(end);
+            //获取路径上的参数
+             var r = window.location.search.substring(1);
+                console.log(window.location)
+             //三种情况转跳--》
+
+                //一 路径上有该参数，但是在时间选择器上没有时间  （取消时间选择）
+            //一 路径上有、时间选择器上也有的话   （更新时间选择器）
+         console.log(r);
+         if(r){//路径中有对数据的筛选
+             console.log(window.location.href.indexOf(who) >= 0);
+             if(window.location.href.indexOf(who) >= 0 ) {
+                    //路径中有对活动数据的筛选
+                 var vars = r.split("&");//将数据根据符号分割为数组
+                 var gte=who+'gte';
+                 var lt=who+'lt';
+                    console.log(vars);
+                for (var i=0;i<vars.length;i++) {//将分割后的数组进行循环便利
+                    var pair = vars[i].split("=");//根据 = 进行再次分割
+                    console.log(pair);
+                     if(start && end) {//如果日期都有值得话
+                         if (pair[0] == gte) {//判断该数组是否为活动筛选条件所在的数组
+                             vars[i] = gte + '=' + start;
+                         } else if (pair[0] == lt) {
+                             vars[i] = lt + '=' + end;
+                         }
+                     }else{
+                         if (pair[0] == gte) {//判断该数组是否为活动筛选条件所在的数组
+                              vars.splice(i+1,1);
+                              vars.splice(i,1);
+                         }else if (pair[0] == lt) {
+                              vars.splice(i,1);
+                         }
+                     }
+                }
+                var strss="?"+vars.join('&');//将其转换为字符串
+                 console.log(window.location)
+                 console.log( window.location.origin+window.location.pathname+strss);
+                 window.location.href = window.location.origin+window.location.pathname+strss;
+            }else{
+                 //活动数据没有对数据的筛选
+                 if(start && end) {//如果日期都有值得话
+                     //一 路径上没有参数，但是在时间选择器上有时间  （新增该时间选择）
+                     var url_str = "&" + who + 'gte=' + start + '&' + who + 'lt=' + end;
+                     window.location.href = window.location + url_str;
+                 }
+             }
+         }else{//没有任何筛选条件
+             //判断是否有？
+             if(start && end){//如果日期都有值得话
+                  if(window.location.href.indexOf("?") >= 0 ) {
+                     var fir_str=''
+                 }else {
+                     var fir_str='?'
+                 }
+                 var url_str=fir_str+who+'gte='+start+'&'+who+'lt='+end;
+                 window.location.href = window.location+url_str;
+             }else{
+
+             }
+
+         }
+    }
+
+</script>
+
+{% endwith %}

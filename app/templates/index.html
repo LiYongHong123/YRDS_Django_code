@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block content %}
+<form class="weui-cells weui-cells_form" method="post">
+  <div class="weui-cell">
+      <div class="weui-cell__bd">
+          <input class="weui-input"  id="kami"  placeholder="请输入权益券码" name="name" value="{{name}}" required>
+      </div>
+  </div>
+  <div class="weui-cell weui-cell_vcode">
+      <div class="weui-cell__bd">
+          <input class="weui-input" placeholder="请输入验证码" name="code" value="{{code}}" required pattern=".{4}" emptyTips="请输入验证码" notMatchTips="请输入正确的验证码">
+      </div>
+      <div class="weui-cell__ft"> <i class="weui-icon-warn"></i> <img class="weui-vcode-img" src="code" width=120 onclick="this.src='code?t='+Date.now()"> </div>
+  </div>
+  <div class="weui-cell">
+      <a href="javascript:sub();" class="weui-btn weui-btn_primary">验证</a>
+  </div>
+</form>
+{% endblock %}

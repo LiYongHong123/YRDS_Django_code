@@ -1,0 +1,333 @@
+{% load i18n %}
+{% with choices.0 as i %}
+    <h3>以 {{ title }}</h3>
+<ul id="active_all_shour">
+    <li>
+        <a  href="" data-href="" id="all">全部</a>
+    </li>
+            {#create hidden inputs to preserve values from other filters and search field#}
+            {% for l in i.get_query %}
+                <li class="granClass"><span style=" cursor:pointer;display: inline-block;font-size: 25px;">+</span><input class="gran" type="checkbox"  style="margin-bottom: 15px"/> <a  href="" style="display: inline-block;"   data-href="{{i.parameter_name }}={{ l.value }}">{{ l.name }}</a>
+                    {% if l.list %}
+                        <ul class="er" style="display: none">
+                         {% for ll in l.list %}
+                               <li class="fatClass" ><span style="cursor:pointer;display: inline-block;font-size: 25px;">+</span><a href="?" style="display: inline-block;"  data-href="{{i.parameter_name }}={{ ll.p_id }}"><input class="fat" type="checkbox" style="margin-bottom: 5px"/>{{ ll.name }} </a>
+                            {% if ll.list %}
+                                <ul class="san" style="display: none">
+                                {% for lll in ll.list %}
+                                     <li> <a href="?" data-href="{{i.parameter_name}}={{ lll.id }}"><input class="chi" type="checkbox" style="margin-bottom:5px"/>{{ lll.name }}</a> </li>
+                                {% endfor %}
+                                </ul>
+                            {% endif %}
+                              </li>
+                        {% endfor %}
+                        </ul>
+                    {% endif %}
+                </li>
+            {% endfor %}
+<div style="display: flex;justify-content: space-between; padding: 0 30px;">
+    <input type='button' value="确认" id="confirm">
+    <input type='button' value="取消" id="cancel">
+</div>
+
+<style>
+    .addTo {
+        color: #5b80b2!important;
+        font-weight: 700;
+    }
+</style>
+<script type="text/javascript">window.jQuery || document.write('<script type ="text/javascript" src ="/django32/app/jquery.min.js">\x3C/script>');</script>
+
+<script type="text/javascript">
+    //a标签路径问题
+     var r = window.location.search.substring(1);
+     var handle = [];       // 声明 该变量用于存放用户选中的连接的data-href
+     var arr = [];          // 声明 缓存数组，用户存储临时数据和handle数组进行比较，帮助handle数组进行去重，该数组在页面刷新时进行清除
+     var arrCache = [];     // 声明 该数组实现全选的反选功能
+
+     if(r){//路径中有对数据的筛选
+         if(window.location.href.indexOf("query_id") >= 0 ) {
+            //路径中有对活动数据的筛选
+            var vars = r.split("&");//将数据根据符号分割为数组
+            //vars是['query_id=3,', 'query_id=1,', 'query_id=2,']
+            for (var i=0; i<vars.length; i++) {           //将分割后的数组进行循环便利
+                // 之所以url里是3个query_id,但是只拿到2个，是因为只indexOf出第一个元素，其他的没有分割，还是放在一个数组里
+                 var pair = vars[i].split("=");           //根据 = 进行再次分割
+                 if (pair[0] == 'query_id') {             //判断该数组是否为活动筛选条件所在的数组
+                      yuan_str=vars[i];                   //变量用来判断当前显示的为那个活动
+                      var a_s=$("#active_all_shour a");   //获取所有的 活动筛选列表的a标签 用来进行a标签的路径赋值
+                      for(var s=1;s<a_s.length;s++){      //循环a标签
+                         //获取到a标签的 data_href值
+                          data_href=$("#active_all_shour a").eq(s).attr('data-href');
+                          //筛选过后样式发生变化问题
+                          // 获取多个数据时，多个复选框样式都为选中状态
+                          if(yuan_str==data_href){
+                              parents_list=  $("#active_all_shour a").eq(s).parents("ul");
+                              parents_span=  $("#active_all_shour a").eq(s).parents("span");
+                              $("#active_all_shour a").eq(s).parent("li").addClass("selected")
+                              for(var c=0;c<parents_list.length;c++){
+                                  parents_list.eq(c).css("display","block");
+                                  parents_list.eq(c).next().next().innerHTML='-';
+                              }
+                          }
+                        //筛选过后样式发生变化问题
+                          vars[i]=data_href;                //更新筛选条件所在的数组
+                          var strss="?"+vars.join('&');     //将其转换为字符串
+                          //更新a标签的路径
+                          $("#active_all_shour a").eq(s).attr('href',window.location.origin+window.location.pathname+strss)
+                      }
+                        //对活动所在的筛选 中全部筛选调节键
+                        vars.splice(i,1);                   //删除对活动的筛选
+                        var strss="?"+vars.join('&');       //将删除后的数组转换为字符串
+                        //赋值给全部标签
+                        $("#all").attr('href',window.location.origin+window.location.pathname+strss)
+                }
+            }
+        }else{
+             //活动数据没有对数据的筛选
+             //给活动筛选的全部选项赋值
+             $("#all").attr('href',window.location)
+             var a_s=$("#active_all_shour a");              //获取所有的 活动筛选列表的a标签 用来进行a标签的路径赋值
+             for(var i=1;i<a_s.length;i++){
+                 //获取到a标签的 data_href值
+                 data_href="&"+$("#active_all_shour a").eq(i).attr('data-href');
+                 //循环赋值
+                 $("#active_all_shour a").eq(i).attr('href',window.location+data_href)
+             }
+         }
+
+     }else{//没有任何筛选条件
+         $("#all").attr('href',window.location)
+         var a_s=$("#active_all_shour a");
+         //判断是否有？
+         if(window.location.href.indexOf("?") >= 0 ) {
+             var fir_str=''
+         }else {
+             var fir_str='?'
+         }
+         for(var i=0;i<a_s.length;i++){
+             //获取到a标签的 data_href
+             data_href=fir_str+$("#active_all_shour a").eq(i).attr('data-href');
+             $("#active_all_shour a").eq(i).attr('href',window.location+data_href)
+         }
+     }
+     //a标签路径问题
+     //下拉问题
+     $("#active_all_shour span").click(function(){
+         if($(this)[0].innerHTML=='+'){
+             if($(this).parent('li').find(".er").length){//判断是否与。er的标签
+                $(this).parent('li').find(".er").css("display","block");
+             }else{
+                 $(this).parent('li').find(".san").css("display","block");
+             }
+            $(this)[0].innerHTML='-';
+         }else if($(this)[0].innerHTML=='-'){
+              if($(this).parent('li').find(".er").length){//判断是否与。er的标签
+                $(this).parent('li').find(".er").css("display","none");
+             }else{
+                 $(this).parent('li').find(".san").css("display","none");
+             }
+              $(this)[0].innerHTML='+';
+         }
+     })
+    //下拉问题
+
+    //全选功能,点全选实现全选功能
+    $('.gran').change(function(){                                                                               // 一级复选框
+        if($(this).prop('checked')){
+            $(this).parent('li').find('.fat').prop('checked',true)                                              // 二级 三级 的复选框选中
+            $(this).parent('li').find('.chi').prop('checked',true)                                              // 二级 三级 的复选框选中
+            handle.push($(this).parent('li').find('a').attr('data-href'))                                       // 当全选按钮选中，把当前选择的连接的data-href传递给数组handle
+            for(var i=0; i<$(this).parent('li').find('.fatClass').length; i++){                                 // 当点击一维框时，遍历当前一维数组下所有二维的活动信息
+                arr.push($(this).parents('li').find('.fatClass').eq(i).children('a').attr('data-href'))         // 把当前选中一维客户下所有的二维活动信息添加到arr数组中
+            }
+            for(var k =0; k<arr.length; k++){                                                                   // 遍历arr缓存数组
+                for(var j = 0; j < handle.length; j++){                                                         // 遍历handle提交信息数组
+                    if(arr[k] == handle[j]) {                                                                   // 如果handle数组中有arr数组的元素，对重复的值进行删除
+                         handle.splice(j,1)
+                    }
+                }
+            }
+        }else{
+            $(this).parent('li').find('.fat').attr('checked',false)                                             // 二级 三级 的复选框取消选中
+            $(this).parent('li').find('.chi').attr('checked',false)                                             // 二级 三级 的复选框取消选中
+            for(var i=0; i<handle.length; i++){                                                                 // 循环handle中的元素
+                if(handle[i] == $(this).parent('li').find('a').attr('data-href')) handle.splice(i,1);           // 删除指定的元素
+            }
+        }
+    })
+    $('.fat').change(function(){                                                                                // 二维复选框
+        var num1 = $(this).parents("li").find('.fat').length;                                                   // 所有的二级元素   的长度
+        var num2 = $(this).parents('li').find('.fat:checked').length;                                           // 所有选中的二级元素的长度
+        if($(this).prop('checked')){                                                                            // 判断当前点击的二级复选框是否选中
+            handle.push($(this).parents('.fatClass').find('a').attr('data-href'));                              // 把当前选中的复选框对应的连接地址添加到handle数组中
+            arr.push($(this).parents('.fatClass').find('a').attr('data-href'));                                 // 把当前选中的复选框对应的连接地址添加到arr缓存数组中
+        } else {                                                                                                // 如果二级复选款未选中
+            for (var i = 0; i < handle.length; i++) {                                                           // 遍历handle数组中的元素
+                if (handle[i] == $(this).parents('.fatClass').find('a').attr('data-href')) handle.splice(i, 1)  // 删除handle中存在的元素
+            }
+
+        }
+        // 实现当前二级复选框和对应的一级复选框的关联
+        if (num1 == num2) {
+            handle.pop($(this).parents('ul').parents('li').children('a').attr('data-href'));                    // 如果当前所有的二级复选框全部选中，则删除当前选中选项在handle中的data-href
+            $(this).parents('.granClass').find('.gran').prop('checked', true);                                  // 当前的二级元素对应的一级复选框选中
+            handle.push($(this).parents('ul').parents('li').children('a').attr('data-href'));                   // 把当前二级元素对应的一级复选框的连接地址追加到handle中
+
+            for (var i =0; i<num1; i++){                                                                        // 把当前所有的二级复选框对应的data-href的值赋值给arr数组
+                arr.push($(this).parents('li').find('.fat:checked').eq(i).parents('.fatClass').children('a').attr('data-href'));
+            }
+            for (var i = 0; i < handle.length; i++) {                                                           // 遍历handle提交信息数组
+                for (var j = 0; j < arr.length; j++) {                                                          // 遍历arr缓存数组
+                    if (handle[i] == arr[j]) handle.splice(i, 1);                                               // 删除handle中包含的arr中的数组元素，
+                }                                                                                               // ...实现在handle中,有一级的复选框对应的值，就删除对应的二级的复选框对应的值
+            }
+            // 当二级全部选中时，只显示当前一级。这样可以简化url地址的长度，减少拉取数据时的请求和相应的次数。
+            // console.log(arr,handle)
+            num2 = 0;                                                                                           // 清空当前二级选中元素的计数器
+        } else {                                                                                                // 如果当前二级复选框有一个未选中，则对应的一级复选框不选中
+            $(this).parents("ul").parents('li').find('.gran').prop('checked', false);                           // 只要有一个二级元素未选中，当前对应的一级元素不选中
+            for (var i = 0; i < handle.length; i++) {                                                           // 遍历handle提交信息数组
+                if (handle[i] == $(this).parents('.granClass').children('a').attr('data-href')) handle.splice(i, 1)// 删除handle元素中包含的当前二级复选框对应的一级复选框的连接地址
+            }
+            arrCache = [];                                                                                      // 首先清楚缓存数组，解决多次点击数据累加bug
+            for (var k = 0; k < $(this).parents('li').find('.fat:checked').length; k++) {                       // 遍历所有选中的二级复选框// 把所有选中的二级信息追加到arrCahe缓存数组中
+                arrCache.push($(this).parents('li').find('.fat:checked').eq(k).parents('.fatClass').children('a').attr('data-href'));// 把所有选中复选框对应的链接地址添加到arrCache数组中
+            }
+            for (var p = 0; p < arrCache.length; p++) {                                                         // 遍历arrChche缓存数组
+                if (handle.indexOf(arrCache[p]) == -1) {                                                        // 如果该元素中的元素不在handel提交信息的数组中
+                    handle.push(arrCache[p]);                                                                   // 把当前arrCache选中的元素追加到handle数组元素中
+                }
+            }
+        }
+        // 当二级复选框选中，对对应的三级复选框进行操作
+        if ($(this).prop('checked')) {                                                                          // 如果当前的二级复选框选中
+            $(this).parents('.fatClass').find('.chi').prop('checked', true)                                     // 当前二级复选框下的三级复选框选中
+        } else {                                                                                                // 如果未选中
+            $(this).parents('.fatClass').find('.chi').prop('checked', false)                                    // 当前二级复选框下的三级复选框取消选中
+        }
+
+    })
+    $('.chi').change(function(){                                                                                // 三级复选框
+        if($(this).prop('checked')==true){                                                                      // 如果当前复选框选中
+            handle.push($(this).parents('.san').find('a').attr('data-href'));                                   // 把当前复选框对应的连接信息添加到handle提交信息中
+            arr.push($(this).parents('.san').find('a').attr('data-href'));                                      // 把当前复选框对应的连接信息添加到arr缓存数组中
+        } else {                                                                                                // 如果取消选中
+            for(var i=0; i<handle.length; i++){                                                                 // 循环handle中的元素
+                if(handle[i] == $(this).parents('.san').find('a').attr('data-href')) handle.splice(i,1);        // 删除指定的元素
+            }
+        }
+        var num1 = $(this).parents('.san').find('.chi').length;                                                 // 所有的三级复选框   的长度
+        var num2 = $(this).parents('.san').find('.chi:checked').length;                                         // 所有选中的三级复选框的长度
+        if(num1 == num2){                                                                                       // 如果当前所有的三级复选框全部选中
+            $(this).parents('.fatClass').find('.fat').prop('checked',true);                                     // 对应的二级复选框选中
+            handle.push($(this).parents('.fatClass').children('a').attr('data-href'));                          // 把对应的二级复选框对应的连接地址添加到handle提交信息数组中
+            for(var i =0; i<handle.length; i++){                                                                // 遍历handle数组
+                for(var j =0; j<arr.length; j++){                                                               // 遍历arr 缓存数组
+                    if(handle[i] == arr[j]) handle.splice(i,1);                                                 // 删除选中状态下二级对应的三级复选框的连接地址
+                }
+            }
+        }else{                                                                                                  // 如果有一个复选框未选中
+            $(this).parents('.fatClass').find('.fat').prop('checked',false);                                    // 对应的二级复选框取消选中
+            for(var i =0; i<handle.length; i++){                                                                // 遍历handle数组
+                if(handle[i] == $(this).parents('.fatClass').find('a').attr('data-href')) handle.splice(i,1);   // 删除当前三级级复选框对应的二级复选框再handle中的数据。
+            }
+
+            // 待处理 对全选的二级数组下的三级数组进行反选
+
+        }
+        //再次判断所有的二维元素，如果所有的二维数组都被选中，则全选选中
+        var num3 = $(this).parents('.er').find('.fat').length;                                                  // 获取所有二级复选框的长度
+        var num4 = $(this).parents('.er').find('.fat:checked').length;                                          // 获取所有选中的二级复选框的长度
+
+        if(num3 === num4){                                                                                      // 如果所有的二级复选框选中
+            $(this).parents('.er').parents('li').find('.gran').prop('checked',true);                            // 则对应的一级复选框选中
+            handle.push($(this).parents('.er').parents('li').find('a').attr('data-href'));                      // 把当前选中的一级复选框的值添加到handle数组中
+            for(var i=0; i<$(this).parents('.er').find('.fat:checked').length; i++){                            // 遍历所有选中的二级复选框
+                handle.push($(this).parents('.er').find('.fat:checked').eq(i).parents('.fatClass').children('a').attr('data-href'));// 把选中的二级复选框添加到handle数组中
+                arr.push($(this).parents('.er').find('.fat:checked').eq(i).parents('.fatClass').children('a').attr('data-href'));   // 把选中的二级复选框添加到arr缓存数组中
+            }
+            for(var j = 0; j<handle.length; j++){                                                               // 遍历handle数组
+                for(var k =0; k<arr.length; k++){                                                               // 遍历arr缓存数组
+                    if(handle[j] == arr[k]) handle.splice(j,1);                                                 // 删除handle数组中包含的arr数组元素
+                }
+            }
+        }else{                                                                                                  // 如果对应的二级复选框有一个未选中
+            $(this).parents('.er').parents('li').find('.gran').prop('checked',false);                           // 则取消对应一级复选框的选中状态
+            //删除一级复选框再handle中的地址
+            for(var i = 0; i<handle.length; i++){                                                               // 遍历handle数组
+                if(handle[i] == ($(this).parents('.er').parents('li').find('a').attr('data-href'))) handle.splice(i,1); // 删除对应的一级复选框再handle数组中对应的连接地址
+            }
+            // 待处理: 一级数组全选时 点击三级数组后对一级数组进行反选
+            // 待处理: 如：一级全选后，反选一个，获取数据，然后再再二级全选，url输入希望只有一个一级的连接
+            arrCache=[];                                                                                        // 首先清楚缓存数组，解决多次点击数据累加bug
+             for(var k = 0; k<$(this).parents('li').find('.fat:checked').length; k++){                          // 遍历所有选中的二级复选框
+                 // 把所有选中的二级信息追加到arrCahe缓存数组中
+                 arrCache.push($(this).parents('li').find('.fat:checked').eq(k).parents('.fatClass').children('a').attr('data-href'));// 把所有选中复选框对应的链接地址添加到arrCache数组中
+             }
+              for(var p =0; p<arrCache.length; p++){                                                            // 遍历arrChche缓存数组
+                  if(handle.indexOf(arrCache[p]) == -1){                                                        // 如果该元素中的元素不在handel提交信息的数组中
+                      handle.push(arrCache[p]);                                                                 // 把当前arrCache选中的元素追加到handle数组元素中
+                  }
+              }
+        }
+    })
+    //点击按钮刷新页面
+    $('#confirm').click(function(){
+        if(handle.length != 0){                                                                                 // 判断连接数据非空,如果空，会出现拉去上面数据的bug
+            var reHandle = [];                                                                                  // 声明 该数组用户存放所有选中的连接的值。
+                // 拿到handle数组的元素，筛选出每一个元素的值，并使用_进行拼接
+                for(var i = 0 ; i<handle.length; i++){                                                          // 遍历所有选中的链接
+                   reHandle.push(handle[i].substring(9,handle[i].length));                                      // 把选中的连接的query_id的值追加到reHandle数组中。
+                }
+                var str = reHandle.join('_');                                                                   // 把用户选中的数据用_拼接到str字符串
+                window.location.assign(window.location.origin+window.location.pathname+"?query_id=" + str);     // 带着用户选中的选项自刷新页面
+        }
+    })
+
+    //点击取消按钮功能
+    $("#cancel").click(function() {
+        $('#active_all_shour input').attr('disabled',false);                                                    // 不可选则的复选框可以选择
+        $('#active_all_shour input').prop('checked',false);                                                     // 所有复选框回复未选择状态
+        $('#active_all_shour a').removeClass('addTo');                                                          // 所有连接恢复默认颜色
+        handle = [];                                                                                            // 清空缓存的连接的data-href
+    })
+    // 实现刷新页面保存多选按钮选中状态，
+    $(function(){
+        var arr = [];                                                                                           // 声明 该变量用于存储所有选中的连接的data-href
+        var urlStr = window.location.href;                                                                      // 根据url 拿到对应的值
+        var urlStr_division = urlStr.split('query_id=')[1].split('_');                                          // 分割出query_id后面的值
+        for(var i = 0; i<urlStr_division.length; i++){                                                          // 拿到url传入的query_id的值
+            if(urlStr_division[i].indexOf('%2C') != -1){                                                        // 判断是否有encodeURIComponent编码
+                arr.push("query_id=" + decodeURIComponent(urlStr_division[i]));                                 // 对encodeURIComponent进行解码并拼接为data-href格式的值，追加到数组
+            }
+            arr.push("query_id=" + urlStr_division[i]);                                                         // arr最终的结果['query_id=1,', 'query_id=3,', 'query_id=6,']
+        }
+
+        //拿到所有的连接，判断连接的data
+        for(var i =0; i<$('#active_all_shour a').length; i++){                                                  // 遍历当前页面所有的连接
+            for(var j = 0; j < arr.length; j++){                                                                // 遍历url传入的值
+                if($("#active_all_shour a").eq(i).attr('data-href') === arr[j]){                                // 判断复选框是否是选中的状态
+                    if(arr[j].indexOf('-') != -1){                                                              // 如果arr[j] 是二级复选框
+                        handle.push(arr[j]);                                                                    // 把url里连接的data-href追加到handle数组中，实现刷新页面数据不丢失
+                        $("#active_all_shour a").eq(i).parents('.fatClass').find('.fat').prop('checked',true);  // 二级复选框选中
+                        $('#active_all_shour a').eq(i).parents('.fatClass').find('.chi').prop('checked',true);  // 三级复选框选中
+                        $("#active_all_shour a").eq(i).parents('.granClass').children('a').addClass('addTo');   // 对应的一级添加addTo类样式
+                    }else if(arr[j].indexOf('-') == -1 && arr[j].indexOf(',') == -1){                           // 如果arr[j] 是三级复选框
+                        handle.push(arr[j]);                                                                    // 把url里连接的data-href追加到handle数组中，实现刷新页面数据不丢失
+                        $("#active_all_shour a").eq(i).parents('.san').find('input').prop('checked',true);      // 当前三级复选框选中
+                        $("#active_all_shour a").eq(i).parents('.granClass').children('a').addClass('addTo');   // 给对应的一级连接添加addTo类样式
+                        $("#active_all_shour a").eq(i).parents('.fatClass').children('a').addClass('addTo');    // 给对应的二级连接添加addTo类样式
+                    }else if(arr[j].indexOf(',')){                                                              // 如果arr[j] 是一级复选框
+                        handle.push(arr[j]);                                                                    // 把url里连接的data-href追加到handle数组中，实现刷新页面数据不丢失
+                        $("#active_all_shour a").eq(i).parents('li').children('input').prop('checked',true);    // 当前一级复选框选中
+                        $('#active_all_shour a').eq(i).parents('.granClass').find('.fat').prop('checked',true); // 当前一级复选框对应的二级复选框选中
+                        $('#active_all_shour a').eq(i).parents('.granClass').find('.chi').prop('checked',true); // 当前一级复选框对应的三级复选框选中
+                    }
+                }
+            }
+        }
+    })
+</script>
+</ul>
+{% endwith %}

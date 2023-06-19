@@ -1,0 +1,1 @@
+需要把db.sqlite3文件放到ka-django文件同级的根目录下。

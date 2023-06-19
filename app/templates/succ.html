@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block container__title %}{% endblock %}
+{% block content %}
+<meta http-equiv=refresh" content=5>
+<div class="page__hd">
+</div>
+<h3 class="page__title succee">{{head}}</h3>
+<div class="weui-cell">
+  <div class="weui-cell__bd"><h4>兑换{{ param }}: {{account}}</h4></div>
+</div>
+<div class="weui-cell">
+  {% if retry %}
+  <div class="weui-cell__bd"><h4><a style="color: #f9dba8" href="retry?id={{retry}}">请点击链接，稍后再试</a></h4></div>
+  {% else %}
+  <div class="weui-cell__bd"><h4>预计48小时内到账，请关注到账通知</h4></div>
+  {% endif %}
+</div>
+<div class="succ_remark" style="display:none;     width: 77%; margin: 0 auto; border: 4px solid #991f18">
+    <div class="weui-cell__hd" style="    margin-bottom: 15px;"><label class="">说明:</label></div>
+    <div class="text_con" style="display:none;">{{remark}}</div>
+    <div class="text_show" ></div>
+</div>
+<script type="text/javascript">
+$(function (){
+    if($('.text_con')[0].outerText){
+          //显示说明内容
+          $('.succ_remark').show()
+          //将说明内容放到显示的div中（可用来解决富文本的text 内容无法进行渲染的问题）
+          $('.succ_remark').find(".text_show")[0].innerHTML=$('.text_con')[0].outerText
+      }
+})
+</script>
+
+{% endblock %}

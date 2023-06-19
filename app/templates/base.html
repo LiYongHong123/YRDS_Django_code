@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="zh-cmn-Hans">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=0,viewport-fit=cover">
+  <title>{% block title %}权益兑换{% endblock %}</title>
+  <link rel="stylesheet" href="/django32/app/weui.min.css"/>
+  <style type="text/css">
+  .container {
+    background:url("/django32/app/bg1.png");
+    background-size:100% ;
+    background-repeat: repeat-y;
+    margin: 0px auto;
+    max-width: 480px;
+    color: white;
+  }
+  h3, h4 {
+    text-align: center;
+  }
+  .page__hd{
+    height:420px;
+    background:url("/django32/app/bg.png");
+    background-size: 100%;
+    background-repeat: no-repeat;
+  }
+   .remark,.succ_remark{
+    padding: 10px;
+    border: 4px solid #8d0507;
+    margin: 0 5px;
+    border-radius: 14px;
+  }
+   .remark_info{
+       padding: 10px;
+       border: 4px solid #da3830;
+       margin: 0 5px;
+       border-radius: 14px;
+       width: 79%;
+       margin: 0 auto;
+   }
+   .kuang{
+           position: fixed;
+        top: 27%;
+        left: 0;
+        right: 0;
+        margin: 0px auto;
+        width: 80%;
+        background: white;
+        border: solid 5px #a90f0f;
+        color: black;
+        border-radius: 19px;
+        padding: 20px;
+       z-index: 1;
+   }
+   .kuang .ok{
+           width: 50%;
+    margin: 0 auto;
+    padding: 10px;
+    text-align: center;
+    background: #8d0507;
+    border-radius: 8px;
+    color: white;
+    margin-top: 20px;
+}
+  .fix{
+      width: 100%;
+      height: 100%;
+         background: #ada4a4b0;
+      position: fixed;
+      top: 0;
+      left: 0;
+  }
+  .kuang_title{
+    font-weight: 800;
+    text-align: center;
+    margin-bottom: 8px;
+}
+   .tip{
+      width: 80%;
+    border: 0;
+    outline: 0;
+    background-color: #EBEBEB;
+    font-size: inherit;
+    border-radius: 15px;
+    height: 1.8em;
+    line-height: 1.41176471;
+    border: 2px solid #ccc;
+    color: #666;
+    padding-left: 10px;
+   }
+   .weui-label{
+        width: 75px;
+   }
+  .tip::-webkit-input-placeholder { color: #9B9B9B;}
+  .tip::-moz-input-placeholder { color: #9B9B9B;}
+  .tip::-ms-input-placeholder { color: #9B9B9B; }
+  </style>
+  <script src="/django32/app/zepto.min.js"></script>
+  {% block css%}{% endblock %}
+</head>
+<body ontouchstart>
+  <div class="container" id="container">
+  {% block container__title %}
+  <div class="page__hd">
+    <!--h3 class="page__title">权益兑换</h3-->
+  </div>{% endblock %}
+    {% block content %}<div class="page__hd">
+    </div>{% endblock %}
+    <div class="weui-footer">
+      <div class="footer-top">
+        <img src="/django32/app/left.png">
+        温馨提示
+        <img src="/django32/app/right.png">
+      </div>
+    兑换过程中，如果有任何疑问，请拨打<br/>客服电话：<a href="tel:4000367567">4000367567</a>
+    </div>
+    <div class="footer"></div>
+  </div>
+</body>
+<script type="text/javascript" src="/django32/app/weui.min.js"></script>
+<script type="text/javascript">
+var msg = '{{msg}}'
+if(msg && msg != 'None') weui.topTips(msg);
+function sub(){
+
+    //卡密过滤
+    if($("#kami").val()){//判断是否有卡密
+         var kami=$("#kami").val();
+        var reg = /[\u4e00-\u9fa5]/g;//正则 过滤汉字、字符
+        kami = kami.replace(reg, "");
+        $("#kami").val(kami);
+    }
+     //卡密过滤
+
+  weui.form.validate('form', function (error) {
+    if (!error) {
+      $('form').submit();
+    }
+  }, {})
+}
+window.onload = function () {
+    if (typeof history.pushState === "function") {
+        history.pushState("jibberish", null, null);
+        window.onpopstate = function () {
+            history.pushState('newjibberish', null, null);
+        };
+    }
+    else {
+        var ignoreHashChange = true;
+        window.onhashchange = function () {
+            if (!ignoreHashChange) {
+                ignoreHashChange = true;
+                window.location.hash = Math.random();
+            }
+            else {
+                ignoreHashChange = false;   
+            }
+        };
+    }
+}
+</script>
+{% block js %}{% endblock %}
+</html>

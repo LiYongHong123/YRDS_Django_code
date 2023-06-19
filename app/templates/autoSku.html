@@ -1,0 +1,132 @@
+{% load i18n %}
+{% with choices.0 as i %}
+    <h3>以 {{ title }}</h3>
+<ul id="active_all_shour">
+    <li>
+        <a  href="" data-href="" id="all">全部</a>
+    </li>
+
+
+            {#create hidden inputs to preserve values from other filters and search field#}
+            {% for l in i.get_query %}
+                <li><span style=" cursor:pointer;display: inline-block;font-size: 25px;">+</span> <a  href="" style="display: inline-block;"   data-href="{{i.parameter_name }}={{ l.value }}">{{ l.name }}   ({{ l.show }})</a>
+                    {% if l.list %}
+                        <ul class="er" style="display: none">
+                         {% for ll in l.list %}
+                               <li><span style="cursor:pointer;display: inline-block;font-size: 25px;">+</span><a  href="?" style="display: inline-block;"  data-href="{{i.parameter_name }}={{ ll.p_id }}">{{ ll.name }}   ({{ ll.showII }})</a>
+                            {% if ll.list %}
+                                <ul class="san" style="display: none">
+                                {% for lll in ll.list %}
+                                     <li> <a  href="?" data-href="{{i.parameter_name}}={{ lll.id }}">{{ lll.name }}</a> </li>
+                                {% endfor %}
+                                </ul>
+                            {% endif %}
+                              </li>
+                        {% endfor %}
+                        </ul>
+                    {% endif %}
+                </li>
+            {% endfor %}
+<script type="text/javascript">window.jQuery || document.write('<script type ="text/javascript" src ="/django32/app/jquery.min.js">\x3C/script>');</script>
+
+<script type="text/javascript">
+    //a标签路径问题
+     var r = window.location.search.substring(1);
+
+     if(r){//路径中有对数据的筛选
+         if(window.location.href.indexOf("sku_id") >= 0 ) {
+            //路径中有对活动数据的筛选
+             var vars = r.split("&");//将数据根据符号分割为数组
+            for (var i=0;i<vars.length;i++) {//将分割后的数组进行循环便利
+                var pair = vars[i].split("=");//根据 = 进行再次分割
+                 if (pair[0] == 'sku_id') {//判断该数组是否为活动筛选条件所在的数组
+                     yuan_str=vars[i];//变量用来判断当前显示的为那个活动
+                     var a_s=$("#active_all_shour a");//获取所有的 活动筛选列表的a标签 用来进行a标签的路径赋值
+                      for(var s=1;s<a_s.length;s++){//循环a标签
+
+                         //获取到a标签的 data_href值
+                          data_href=$("#active_all_shour a").eq(s).attr('data-href');
+
+                          //筛选过后样式发生变化问题
+                          console.log(yuan_str==data_href)
+                          if(yuan_str==data_href){
+                              parents_list=  $("#active_all_shour a").eq(s).parents("ul");
+                              parents_span=  $("#active_all_shour a").eq(s).parents("span");
+                              $("#active_all_shour a").eq(s).parent("li").addClass("selected")
+                              for(var c=0;c<parents_list.length;c++){
+                                  console.log(222)
+                                  console.log(parents_list.eq(c))
+                                  parents_list.eq(c).css("display","block");
+                                  console.log( parents_list.eq(c).next().next())
+                                  parents_list.eq(c).next().next().innerHTML='-';
+                              }
+                          }
+                        //筛选过后样式发生变化问题
+                          vars[i]=data_href;//更新筛选条件所在的数组
+                          var strss="?"+vars.join('&');//将其转换为字符串
+                          //更新a标签的路径
+                          $("#active_all_shour a").eq(s).attr('href',window.location.origin+window.location.pathname+strss)
+                      }
+                        //对活动所在的筛选 中全部筛选调节键
+                        vars.splice(i,1);//删除对活动的筛选
+                        var strss="?"+vars.join('&');//将删除后的数组转换为字符串
+                        //赋值给全部标签
+                        $("#all").attr('href',window.location.origin+window.location.pathname+strss)
+                }
+            }
+        }else{
+             //活动数据没有对数据的筛选
+             //给活动筛选的全部选项赋值
+             $("#all").attr('href',window.location)
+             var a_s=$("#active_all_shour a");//获取所有的 活动筛选列表的a标签 用来进行a标签的路径赋值
+             for(var i=1;i<a_s.length;i++){
+                 //获取到a标签的 data_href值
+                 data_href="&"+$("#active_all_shour a").eq(i).attr('data-href');
+                 console.log(data_href)
+                 //循环赋值
+                 $("#active_all_shour a").eq(i).attr('href',window.location+data_href)
+             }
+         }
+
+     }else{//没有任何筛选条件
+         $("#all").attr('href',window.location)
+         var a_s=$("#active_all_shour a");
+         console.log(a_s)
+         //判断是否有？
+         if(window.location.href.indexOf("?") >= 0 ) {
+             var fir_str=''
+         }else {
+             var fir_str='?'
+         }
+         for(var i=0;i<a_s.length;i++){
+             //获取到a标签的 data_href
+             data_href=fir_str+$("#active_all_shour a").eq(i).attr('data-href');
+             $("#active_all_shour a").eq(i).attr('href',window.location+data_href)
+         }
+     }
+     //a标签路径问题
+    //下拉问题
+     $("#active_all_shour span").click(function(){
+         console.log($(this)[0].innerHTML)
+         if($(this)[0].innerHTML=='+'){
+             if($(this).parent('li').find(".er").length){//判断是否与。er的标签
+                $(this).parent('li').find(".er").css("display","block");
+             }else{
+                 $(this).parent('li').find(".san").css("display","block");
+             }
+            $(this)[0].innerHTML='-';
+         }else if($(this)[0].innerHTML=='-'){
+             console.log($(this).parent('li').find(".er").length)
+              if($(this).parent('li').find(".er").length){//判断是否与。er的标签
+                $(this).parent('li').find(".er").css("display","none");
+             }else{
+                 $(this).parent('li').find(".san").css("display","none");
+             }
+              $(this)[0].innerHTML='+';
+         }
+     })
+    //下拉问题
+
+</script>
+</ul>
+{% endwith %}

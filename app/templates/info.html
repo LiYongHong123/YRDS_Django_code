@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="weui-cell">
+  <div class="weui-cell__hd"><label class="weui-label">活动</label></div>
+  <div class="weui-cell__bd">{{activity}}</div>
+</div>
+<div class="weui-cell">
+  {% if is_link %}
+    <div class="weui-cell__hd"><label class="weui-label">兑换链接</label></div>
+    <div class="weui-cell__bd"><a href="{{account}}">点击打开</a></div>
+  {% else %}
+    <div class="weui-cell__hd"><label class="weui-label">代金券码</label></div>
+    <div class="weui-cell__bd">{{account}}</div>
+  {% endif %}
+</div>
+<div class=" param  remark_info">
+  <div class="weui-cell__hd" style="margin-bottom: 15px;"><label class="weui-label" style="  text-align: left;">说明</label></div>
+  <div class="weui-cell__bd text_con"  >{{remark|safe}}</div>
+</div>
+{#弹出框#}
+    <div class="kuang">
+        <div class="weui-cell__bd text_show">
+            <p class="kuang_title">说明</p>
+             {{remark|safe}}
+         </div>
+        <div class="ok">确认已阅读</div>
+    </div>
+    <div class="fix"></div>
+{#弹出框#}
+<script type="text/javascript">
+function cc(o){
+  $('.param').hide()
+  $('.param input').removeAttr('required')
+  if(o){
+    $('.'+o).show()
+    $('.'+o+' input').attr('required', 1)
+  }
+}
+$(function(){
+    //确认阅读的点击事件
+    $('.ok').click(function(){
+        //关闭弹出框
+        $('.kuang').hide();
+        //关闭灰色图层
+        $('.fix').hide();
+    })
+   /*if($(".text_con")[0].outerText){//如果说明有内容
+         //显示说明内容
+          $('.remark_info').show()
+          //将说明内容放到显示的div中（可用来解决富文本的text 内容无法进行渲染的问题）
+          $('.remark_info').find(".text_show")[0].innerHTML=$(".text_con")[0].outerText
+    }
+
+  $('input')[0].click()*/
+
+})
+</script>
+{% endblock %}
